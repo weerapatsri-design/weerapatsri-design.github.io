@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Mini-Inventory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{ --bg:#0b1220; --card:#121a2b; --text:#e6eefc; --muted:#98a6c7; --accent:#5ee1ff; --danger:#ff6b6b; --ok:#9aff8a;}
+  *{ box-sizing:border-box }
+  body{ margin:0; font-family:Inter,system-ui,Segoe UI,Arial; background:radial-gradient(1000px 600px at 10% 0%, #0f1b32, transparent),radial-gradient(800px 500px at 90% 100%, #16233e, transparent), var(--bg); color:var(--text); }
+  .wrap{ max-width:980px; margin:40px auto; padding:0 16px; }
+  h1{ margin:0 0 16px; font-size:28px; letter-spacing:.2px }
+  .bar{ display:flex; gap:12px; flex-wrap:wrap; align-items:end; margin-bottom:16px }
+  .card{ background:var(--card); border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:16px; box-shadow:0 10px 30px rgba(0,0,0,.35) }
+  label{ font-size:12px; color:var(--muted) }
+  input,select,button{ height:42px; border-radius:10px; border:1px solid rgba(255,255,255,.12); background:#0c1527; color:var(--text); padding:0 12px; outline:none }
+  input::placeholder{ color:#6f7da0 }
+  button{ background:linear-gradient(135deg,#5ee1ff,#00b7ff); border:none; font-weight:600; cursor:pointer }
+  button.secondary{ background:#0c1527 }
+  button.danger{ background:linear-gradient(135deg,#ff8f8f,#ff6b6b) }
+  .grow{ flex:1 }
+  table{ width:100%; border-collapse:collapse; }
+  th,td{ padding:12px; border-top:1px solid rgba(255,255,255,.08); text-align:left; }
+  th{ color:var(--muted); font-weight:600; cursor:pointer; user-select:none }
+  .row-actions{ display:flex; gap:8px }
+  .pill{ padding:4px 10px; border-radius:999px; font-size:12px; border:1px solid rgba(255,255,255,.12)}
+  .pill-ok{ background:rgba(154,255,138,.12); color:var(--ok) }
+  .pill-low{ background:rgba(255,107,107,.12); color:var(--danger) }
+  .footer{ margin-top:14px; display:flex; gap:10px; justify-content:flex-end }
+  @media (max-width:680px){ .hide-sm{ display:none } }
+</style>
+</head>
+<body>
+<div class="wrap">
+    
+  <h1>Mini-Inventory <span style="font-size:14px;color:var(--muted)">— add / edit / delete / search / export</span></h1>
+
+  <!-- Top bar: form + search -->
+  <div class="card">
+    <div class="bar">
+      <div class="grow">
+        <label>Product name</label>
+        <input id="name" class="grow" placeholder="e.g. Box A" />
+      </div>
+      <div>
+        <label>SKU</label>
+        <input id="sku" placeholder="e.g. BOX-A"/>
+      </div>
+      <div>
+        <label>Qty</label>
+        <input id="qty" type="number" min="0" value="0"/>
+      </div>
+      <div>
+        <label>Price</label>
+        <input id="price" type="number" min="0" step="0.01" value="0.00"/>
+      </div>
+      <div>
+        <button id="btnAdd">Add / Update</button>
+      </div>
+      <div class="grow" style="text-align:right">
+        <label>Search</label>
+        <input id="search" class="grow" placeholder="Type to filter (name or SKU)"/>
+      </div>
+    </div>
+
+    <table id="tbl">
+      <thead>
+        <tr>
+          <th data-sort="name">Name ▲▼</th>
+          <th class="hide-sm" data-sort="sku">SKU ▲▼</th>
+          <th data-sort="qty">Qty ▲▼</th>
+          <th class="hide-sm" data-sort="price">Price ▲▼</th>
+          <th>Status</th>
+          <th style="width:160px">Action</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="footer">
+      <button id="btnExport" class="secondary">Export CSV</button>
+      <button id="btnClear" class="danger">Clear All</button>
+    </div>
+  </div><br><br>
+  <button class="goto-btn" onclick="window.location.href='index.html'">
+    ⬅ Back
+  </button>
+</div>
+
+<script>
+/* ===== State & Persistence ===== */
+const KEY = "mini_inventory_v1";
+let items = load();
+let sortBy = "name";
+let sortAsc = true;
+let editingId = null;
+
+function load(){
+  try{ return JSON.parse(localStorage.getItem(KEY)) ?? seed(); }
+  catch{ return seed(); }
+}
+function save(){ localStorage.setItem(KEY, JSON.stringify(items)); }
+function seed(){
+  return [
+    { id: 1, name:"Box A", sku:"BOX-A", qty:100, price:50.00 },
+    { id: 2, name:"Tape", sku:"TAPE", qty:200, price:10.00 },
+    { id: 3, name:"Bubble Wrap", sku:"BW-001", qty:50, price:15.00 },
+  ];
+}
+
+/* ===== DOM refs ===== */
+const $ = (q)=>document.querySelector(q);
+const $tbody = $("#tbl tbody");
+const $name = $("#name"), $sku = $("#sku"), $qty = $("#qty"), $price = $("#price");
+const $search = $("#search");
+
+/* ===== Render ===== */
+function render(){
+  const q = $search.value.trim().toLowerCase();
+  const data = items
+      .filter(x => !q || x.name.toLowerCase().includes(q) || (x.sku||"").toLowerCase().includes(q))
+      .sort((a,b)=>{
+        const A = (a[sortBy] ?? "").toString().toLowerCase();
+        const B = (b[sortBy] ?? "").toString().toLowerCase();
+        if(A < B) return sortAsc ? -1 : 1;
+        if(A > B) return sortAsc ? 1 : -1;
+        return 0;
+      });
+
+  $tbody.innerHTML = data.map(x=>`
+    <tr>
+      <td>${escapeHtml(x.name)}</td>
+      <td class="hide-sm">${escapeHtml(x.sku||"")}</td>
+      <td>${x.qty}</td>
+      <td class="hide-sm">${x.price.toFixed(2)}</td>
+      <td>
+        <span class="pill ${x.qty>20?'pill-ok':'pill-low'}">
+          ${x.qty>20?'OK':'LOW'}
+        </span>
+      </td>
+      <td class="row-actions">
+        <button class="secondary" onclick="edit(${x.id})">Edit</button>
+        <button class="danger" onclick="removeItem(${x.id})">Delete</button>
+      </td>
+    </tr>
+  `).join("");
+}
+function escapeHtml(s){ return s.replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[m])); }
+
+/* ===== Actions ===== */
+function addOrUpdate(){
+  const name = $name.value.trim();
+  const sku  = $sku.value.trim();
+  const qty  = Math.max(0, Number($qty.value||0));
+  const price= Math.max(0, Number($price.value||0));
+
+  if(!name){ alert("Please enter product name"); return; }
+
+  if(editingId){
+    const i = items.findIndex(x=>x.id===editingId);
+    if(i>-1) items[i] = { ...items[i], name, sku, qty, price };
+    editingId = null;
+    $("#btnAdd").textContent = "Add / Update";
+  }else{
+    const id = items.length ? Math.max(...items.map(x=>x.id))+1 : 1;
+    items.push({ id, name, sku, qty, price });
+  }
+  clearForm();
+  save(); render();
+}
+function edit(id){
+  const x = items.find(x=>x.id===id);
+  if(!x) return;
+  $name.value = x.name; $sku.value = x.sku||""; $qty.value = x.qty; $price.value = x.price;
+  editingId = id; $("#btnAdd").textContent = "Update";
+  $name.focus();
+}
+function removeItem(id){
+  if(!confirm("Delete this item?")) return;
+  items = items.filter(x=>x.id!==id);
+  save(); render();
+}
+function clearAll(){
+  if(!confirm("Clear all items?")) return;
+  items = []; save(); render();
+}
+function clearForm(){ $name.value=""; $sku.value=""; $qty.value="0"; $price.value="0.00"; }
+
+/* ===== Sorting / Search ===== */
+document.querySelectorAll("th[data-sort]").forEach(th=>{
+  th.addEventListener("click", ()=>{
+    const key = th.getAttribute("data-sort");
+    if(sortBy === key) sortAsc = !sortAsc; else { sortBy = key; sortAsc = true; }
+    render();
+  });
+});
+$search.addEventListener("input", render);
+
+/* ===== Export CSV ===== */
+function exportCSV(){
+  const rows = [["Name","SKU","Qty","Price"]];
+  items.forEach(x=>rows.push([x.name, x.sku||"", x.qty, x.price]));
+  const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\r\n");
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "inventory.csv"; a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ===== Wire events ===== */
+$("#btnAdd").addEventListener("click", addOrUpdate);
+$("#btnClear").addEventListener("click", clearAll);
+$("#btnExport").addEventListener("click", exportCSV);
+
+/* ===== First render ===== */
+render();
+</script>
+</body>
+</html>
