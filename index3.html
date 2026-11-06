@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Calm Sound — Music Therapy for Low Mood</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b1220; --card:#121a2b; --card2:#0c1527; --text:#e6eefc; --muted:#98a6c7;
+    --accent:#5ee1ff; --accent2:#b79bff; --danger:#ff6b6b; --ok:#9aff8a;
+    --line:rgba(255,255,255,.1);
+  }
+  *{ box-sizing:border-box }
+  html{ -webkit-text-size-adjust:100% }
+  body{
+    margin:0; font-family:Inter,system-ui,"Segoe UI",Arial,sans-serif; color:var(--text); line-height:1.55;
+    background:radial-gradient(1000px 600px at 10% 0%, #14284a, transparent),
+               radial-gradient(800px 500px at 90% 100%, #261a4a, transparent), var(--bg);
+    min-height:100vh;
+  }
+  .wrap{ max-width:980px; margin:0 auto; padding:28px 16px 56px }
+  h1{ margin:0 0 4px; font-size:clamp(1.5rem,5vw,2rem) }
+  h2{ margin:0 0 14px; font-size:1.15rem }
+  .sub{ color:var(--muted); margin:0 0 18px }
+  .grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px }
+  .full{ grid-column:1 / -1 }
+  .card{ background:var(--card); border:1px solid var(--line); border-radius:16px; padding:20px; box-shadow:0 10px 30px rgba(0,0,0,.35); min-width:0 }
+
+  .notice{ display:flex; gap:12px; background:rgba(255,107,107,.08); border:1px solid rgba(255,107,107,.3); border-radius:14px; padding:14px 16px; margin-bottom:16px; font-size:.92rem }
+  .notice strong{ color:#ffb4b4 }
+
+  button, select, input, textarea{ font:inherit; color:var(--text) }
+  button{ min-height:44px; padding:0 18px; border:none; border-radius:10px; font-weight:600; cursor:pointer; color:#06121f; background:linear-gradient(135deg,#5ee1ff,#00b7ff) }
+  button.secondary{ background:var(--card2); color:var(--text); border:1px solid var(--line) }
+  button.danger{ background:linear-gradient(135deg,#ff8f8f,#ff6b6b) }
+  button:disabled{ opacity:.5; cursor:not-allowed }
+  button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible, .mood input:focus-visible + span{ outline:2px solid var(--accent); outline-offset:2px }
+  select, textarea, input[type=text]{ width:100%; min-height:44px; background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:8px 12px }
+  textarea{ resize:vertical; min-height:70px }
+  label.l{ display:block; font-size:.78rem; color:var(--muted); margin:0 0 6px }
+
+  /* mood picker */
+  .moods{ display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; border:0; padding:0; margin:0 }
+  .moods legend{ padding:0; margin-bottom:10px; font-weight:600 }
+  .mood{ position:relative }
+  .mood input{ position:absolute; opacity:0; inset:0; cursor:pointer; margin:0; width:100%; height:100% }
+  .mood span{ display:flex; flex-direction:column; align-items:center; gap:4px; padding:12px 4px; border-radius:12px; background:var(--card2); border:1px solid var(--line); font-size:.74rem; color:var(--muted); text-align:center; transition:border-color .2s, background .2s }
+  .mood span b{ font-size:1.6rem; line-height:1 }
+  .mood input:checked + span{ border-color:var(--accent); background:rgba(94,225,255,.1); color:var(--text) }
+  #moodMsg{ margin:14px 0 0; min-height:3em; color:#d6e2ff }
+  #suggest{ margin:6px 0 0; color:var(--accent2); font-size:.92rem }
+
+  /* player */
+  .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:end }
+  .row > *{ min-width:0 }
+  .grow{ flex:1 1 180px }
+  .presets{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin-bottom:14px }
+  .preset{ text-align:left; background:var(--card2); color:var(--text); border:1px solid var(--line); padding:10px 12px; min-height:60px }
+  .preset small{ display:block; font-weight:400; color:var(--muted); font-size:.75rem }
+  .preset[aria-pressed=true]{ border-color:var(--accent); background:rgba(94,225,255,.1) }
+  input[type=range]{ width:100%; accent-color:var(--accent); min-height:32px }
+  .status{ color:var(--muted); font-size:.88rem; margin:10px 0 0; min-height:1.4em }
+
+  /* breathing */
+  .breath-stage{ display:grid; place-items:center; height:210px; margin:6px 0 14px }
+  .orb{ width:170px; height:170px; border-radius:50%; display:grid; place-items:center; text-align:center;
+        background:radial-gradient(circle at 35% 30%, #b79bff, #3a6ee8 60%, #123 100%);
+        box-shadow:0 0 50px rgba(94,225,255,.35); transform:scale(.6); will-change:transform }
+  .orb .t{ font-weight:700; font-size:1.05rem; color:#fff }
+  .orb .n{ font-size:1.6rem; color:#fff }
+  .reduce .orb{ transform:none !important; transition:none !important }
+  .check{ display:flex; align-items:center; gap:8px; font-size:.9rem; color:var(--muted); margin:10px 0 }
+  .check input{ width:20px; height:20px; accent-color:var(--accent) }
+
+  /* log */
+  .stats{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-bottom:14px }
+  .stat{ background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:12px; text-align:center }
+  .stat b{ display:block; font-size:1.4rem }
+  .stat span{ font-size:.75rem; color:var(--muted) }
+  .chart{ width:100%; height:auto; background:var(--card2); border:1px solid var(--line); border-radius:12px }
+  .empty{ color:var(--muted); font-size:.9rem; margin:8px 0 }
+  ul.log{ list-style:none; margin:14px 0 0; padding:0; display:flex; flex-direction:column; gap:8px }
+  ul.log li{ display:flex; gap:12px; align-items:center; background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:10px 12px }
+  ul.log .e{ font-size:1.5rem }
+  ul.log .m{ flex:1; min-width:0; font-size:.86rem }
+  ul.log .m small{ color:var(--muted); display:block }
+  ul.log .m p{ margin:2px 0 0; overflow-wrap:anywhere }
+  ul.log button{ min-height:36px; padding:0 12px; font-size:.8rem }
+
+  .foot{ margin-top:20px; display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between; color:var(--muted); font-size:.82rem }
+  .goto-btn{ height:44px }
+
+  @media (max-width:720px){
+    .grid{ grid-template-columns:1fr }
+    .card{ padding:16px }
+    .moods{ gap:6px }
+    .mood span{ padding:10px 2px; font-size:.68rem }
+    .mood span b{ font-size:1.35rem }
+    .presets{ grid-template-columns:1fr 1fr }
+    .notice{ font-size:.86rem }
+    ul.log li{ flex-wrap:wrap }
+  }
+  @media (max-width:360px){ .presets{ grid-template-columns:1fr } }
+  @media (prefers-reduced-motion:reduce){ *{ transition:none !important } }
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+
+  <h1>Calm Sound</h1>
+  <p class="sub">Music &amp; breathing for low mood days — check in, listen, breathe, and keep a simple mood log.</p>
+
+  <div class="notice" role="note">
+    <span aria-hidden="true">⚠️</span>
+    <p style="margin:0"><strong>Self-care tool, not medical treatment.</strong> It cannot diagnose or treat depression. If you feel unsafe or are thinking about harming yourself, call the Thai Mental Health Hotline <strong>1323</strong> (Department of Mental Health) or emergency services <strong>1669</strong>, and reach out to someone you trust.</p>
+  </div>
+
+  <div class="grid">
+
+    <!-- 1. Mood check-in -->
+    <section class="card full" aria-labelledby="h-mood">
+      <h2 id="h-mood">1 · How are you feeling right now?</h2>
+      <fieldset class="moods" id="moods">
+        <legend class="sr" style="position:absolute;left:-9999px">Choose your mood</legend>
+      </fieldset>
+      <p id="moodMsg" aria-live="polite">Pick the face that fits best. There is no right or wrong answer.</p>
+      <p id="suggest"></p>
+    </section>
+
+    <!-- 2. Sound -->
+    <section class="card" aria-labelledby="h-sound">
+      <h2 id="h-sound">2 · Sound</h2>
+      <div class="presets" id="presets"></div>
+      <div class="row">
+        <button id="btnPlay" type="button">▶ Play</button>
+        <div class="grow">
+          <label class="l" for="vol">Volume</label>
+          <input id="vol" type="range" min="0" max="100" value="55" />
+        </div>
+      </div>
+      <div style="margin-top:14px">
+        <label class="l" for="sleep">Sleep timer (fades out automatically)</label>
+        <select id="sleep">
+          <option value="0">Off</option>
+          <option value="15">15 minutes</option>
+          <option value="30">30 minutes</option>
+          <option value="45">45 minutes</option>
+          <option value="60">60 minutes</option>
+        </select>
+      </div>
+      <p class="status" id="soundStatus" aria-live="polite"></p>
+    </section>
+
+    <!-- 3. Breathing -->
+    <section class="card" aria-labelledby="h-breath">
+      <h2 id="h-breath">3 · Breathe with the sound</h2>
+      <div class="breath-stage"><div class="orb" id="orb"><div><div class="t" id="bText" aria-live="polite">Ready</div><div class="n" id="bNum"></div></div></div></div>
+      <label class="l" for="pattern">Pattern</label>
+      <select id="pattern">
+        <option value="calm">Calm — in 4 · hold 4 · out 6</option>
+        <option value="long">Long exhale — in 4 · out 8</option>
+        <option value="box">Box — in 4 · hold 4 · out 4 · hold 4</option>
+      </select>
+      <label class="check"><input type="checkbox" id="sync" checked /> Let the volume rise and fall with my breathing</label>
+      <div class="row">
+        <button id="btnBreath" type="button" class="secondary">Start breathing guide</button>
+        <span id="cycles" class="status" style="margin:0"></span>
+      </div>
+    </section>
+
+    <!-- 4. Log -->
+    <section class="card full" aria-labelledby="h-log">
+      <h2 id="h-log">4 · Mood log</h2>
+      <div class="row">
+        <div class="grow">
+          <label class="l" for="note">Optional note (stays on this device)</label>
+          <textarea id="note" maxlength="200" placeholder="e.g. Walked outside, felt a bit lighter"></textarea>
+        </div>
+        <button id="btnSave" type="button">Save today's mood</button>
+      </div>
+      <p class="status" id="saveStatus" aria-live="polite"></p>
+
+      <div class="stats" id="stats"></div>
+      <div id="chartBox"></div>
+      <ul class="log" id="logList"></ul>
+      <div class="row" style="margin-top:14px">
+        <button id="btnExport" type="button" class="secondary">Export CSV</button>
+        <button id="btnClear" type="button" class="danger">Clear log</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="foot">
+    <button class="goto-btn" type="button" onclick="window.location.href='index.html'">⬅ Back</button>
+    <span>All sounds are generated live in your browser — no audio files. Data stays on this device.</span>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ============ Data ============ */
+const MOODS = [
+  { v:1, e:"😞", t:"Very low", msg:"Thank you for checking in. Heavy days happen. Try something slow and warm, and a few gentle breaths — small steps count.", preset:"pad" },
+  { v:2, e:"🙁", t:"Low",      msg:"A low day. Something soft and steady may help you settle a little.", preset:"ocean" },
+  { v:3, e:"😐", t:"Okay",     msg:"Feeling so-so is okay too. Let's keep things light and calm.", preset:"bells" },
+  { v:4, e:"🙂", t:"Good",     msg:"Nice. A little calm sound can help you keep that going.", preset:"rain" },
+  { v:5, e:"😄", t:"Great",    msg:"Lovely. Enjoy it — a gentle soundscape is a nice way to savour the moment.", preset:"bells" }
+];
+const PRESETS = {
+  pad:   { name:"Warm Pad",    desc:"Slow, soft chords" },
+  bells: { name:"Soft Bells",  desc:"Gentle random notes" },
+  rain:  { name:"Rain",        desc:"Steady filtered noise" },
+  ocean: { name:"Ocean",       desc:"Slow rolling waves" }
+};
+const PATTERNS = {
+  calm: [["Breathe in",4,1],["Hold",4,1],["Breathe out",6,0]],
+  long: [["Breathe in",4,1],["Breathe out",8,0]],
+  box:  [["Breathe in",4,1],["Hold",4,1],["Breathe out",4,0],["Hold",4,0]]
+};
+const KEY = "calm_sound_log_v1";
+
+/* ============ Helpers ============ */
+const $ = (id)=>document.getElementById(id);
+const reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+if (reduceMotion) $("app").classList.add("reduce");
+
+function loadLog(){ try{ const a=JSON.parse(localStorage.getItem(KEY)); return Array.isArray(a)?a:[]; }catch{ return []; } }
+function saveLog(a){ try{ localStorage.setItem(KEY, JSON.stringify(a)); }catch{} }
+let log = loadLog();
+
+let mood = null;            // selected mood object
+let presetKey = "pad";
+let listenedSec = 0;        // since last save
+
+/* ============ Mood UI ============ */
+(function buildMoods(){
+  const box = $("moods");
+  MOODS.forEach(m=>{
+    const lab = document.createElement("label"); lab.className="mood";
+    const inp = document.createElement("input"); inp.type="radio"; inp.name="mood"; inp.value=m.v;
+    inp.addEventListener("change", ()=>chooseMood(m));
+    const span = document.createElement("span");
+    const b = document.createElement("b"); b.textContent=m.e; b.setAttribute("aria-hidden","true");
+    span.append(b, document.createTextNode(m.t));
+    lab.append(inp, span); box.append(lab);
+  });
+})();
+function chooseMood(m){
+  mood = m;
+  $("moodMsg").textContent = m.msg;
+  const pat = (m.v<=2) ? "long" : "calm";
+  $("pattern").value = pat;
+  const patName = $("pattern").options[$("pattern").selectedIndex].text.split(" — ")[0];
+  $("suggest").textContent = "Suggested to start: " + PRESETS[m.preset].name + " + the “" + patName + "” breathing pattern. Change anything you like.";
+  selectPreset(m.preset, true);
+}
+
+/* ============ Audio engine (Web Audio, no files) ============ */
+let ctx=null, master=null, bus=null, current=null, playing=false;
+const noiseCache = {};
+
+function ensureCtx(){
+  if(!ctx){
+    const AC = window.AudioContext || window.webkitAudioContext;
+    ctx = new AC();
+    const comp = ctx.createDynamicsCompressor();
+    master = ctx.createGain(); master.gain.value = 0;
+    bus = ctx.createGain(); bus.gain.value = 1;       // breathing swell lives here
+    bus.connect(master); master.connect(comp); comp.connect(ctx.destination);
+  }
+  if(ctx.state==="suspended") ctx.resume();
+}
+function noiseBuf(type){
+  if(noiseCache[type]) return noiseCache[type];
+  const len = ctx.sampleRate*6, buf = ctx.createBuffer(1,len,ctx.sampleRate), d = buf.getChannelData(0);
+  let last=0,b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+  for(let i=0;i<len;i++){
+    const w=Math.random()*2-1;
+    if(type==="brown"){ last=(last+0.02*w)/1.02; d[i]=last*3.5; }
+    else { b0=.99886*b0+w*.0555179; b1=.99332*b1+w*.0750759; b2=.969*b2+w*.153852; b3=.8665*b3+w*.3104856; b4=.55*b4+w*.5329522; b5=-.7616*b5-w*.016898;
+           d[i]=(b0+b1+b2+b3+b4+b5+b6+w*.5362)*.11; b6=w*.115926; }
+  }
+  return (noiseCache[type]=buf);
+}
+function loopSrc(type){ const s=ctx.createBufferSource(); s.buffer=noiseBuf(type); s.loop=true; s.start(); return s; }
+function safeStop(n){ try{ n.stop(); }catch{} }
+
+const BUILD = {
+  pad(out){
+    const filt=ctx.createBiquadFilter(); filt.type="lowpass"; filt.frequency.value=900; filt.Q.value=.4; filt.connect(out);
+    const lfo=ctx.createOscillator(); lfo.frequency.value=.06; const lg=ctx.createGain(); lg.gain.value=260; lfo.connect(lg); lg.connect(filt.frequency); lfo.start();
+    const chords=[[110,164.81,220,261.63,329.63],[87.31,130.81,174.61,220,261.63],[130.81,196,261.63,329.63,392],[98,146.83,196,246.94,293.66]];
+    let idx=0, active=null;
+    function voices(freqs){
+      const g=ctx.createGain(); g.gain.value=0; g.connect(filt); const oscs=[];
+      freqs.forEach(f=>[-5,5].forEach(c=>{ const o=ctx.createOscillator(); o.type="sine"; o.frequency.value=f; o.detune.value=c;
+        const og=ctx.createGain(); og.gain.value=.05; o.connect(og); og.connect(g); o.start(); oscs.push(o); }));
+      return {g,oscs};
+    }
+    function next(){
+      const t=ctx.currentTime, v=voices(chords[idx++%chords.length]);
+      v.g.gain.setValueAtTime(0,t); v.g.gain.linearRampToValueAtTime(1,t+6);
+      if(active){ const o=active; o.g.gain.cancelScheduledValues(t); o.g.gain.setValueAtTime(o.g.gain.value,t); o.g.gain.linearRampToValueAtTime(0,t+6);
+        setTimeout(()=>{ o.oscs.forEach(safeStop); o.g.disconnect(); },6500); }
+      active=v;
+    }
+    next(); const timer=setInterval(next,12000);
+    return ()=>{ clearInterval(timer); safeStop(lfo); if(active) active.oscs.forEach(safeStop); };
+  },
+  bells(out){
+    const delay=ctx.createDelay(2); delay.delayTime.value=.55;
+    const fb=ctx.createGain(); fb.gain.value=.4;
+    const lp=ctx.createBiquadFilter(); lp.type="lowpass"; lp.frequency.value=2200;
+    delay.connect(lp); lp.connect(fb); fb.connect(delay); lp.connect(out);
+    const dry=ctx.createGain(); dry.gain.value=.7; dry.connect(out);
+    const send=ctx.createGain(); send.gain.value=.6; send.connect(delay);
+    const scale=[220,261.63,293.66,329.63,392,440,523.25];
+    let timer;
+    function note(){
+      const f=scale[Math.floor(Math.random()*scale.length)], t=ctx.currentTime;
+      const o=ctx.createOscillator(); o.type="sine"; o.frequency.value=f;
+      const o2=ctx.createOscillator(); o2.type="sine"; o2.frequency.value=f*2;
+      const g=ctx.createGain(); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(.22,t+.03); g.gain.exponentialRampToValueAtTime(.0008,t+4.5);
+      const g2=ctx.createGain(); g2.gain.value=.25;
+      o.connect(g); o2.connect(g2); g2.connect(g); g.connect(dry); g.connect(send);
+      o.start(t); o2.start(t); o.stop(t+4.7); o2.stop(t+4.7);
+      timer=setTimeout(note, 2200+Math.random()*3800);
+    }
+    note();
+    return ()=>clearTimeout(timer);
+  },
+  rain(out){
+    const a=loopSrc("pink"), hp=ctx.createBiquadFilter(); hp.type="highpass"; hp.frequency.value=500;
+    const lp=ctx.createBiquadFilter(); lp.type="lowpass"; lp.frequency.value=7000;
+    const ga=ctx.createGain(); ga.gain.value=.45; a.connect(hp); hp.connect(lp); lp.connect(ga); ga.connect(out);
+    const b=loopSrc("brown"), lb=ctx.createBiquadFilter(); lb.type="lowpass"; lb.frequency.value=320;
+    const gb=ctx.createGain(); gb.gain.value=.35; b.connect(lb); lb.connect(gb); gb.connect(out);
+    return ()=>{ safeStop(a); safeStop(b); };
+  },
+  ocean(out){
+    const s=loopSrc("brown"), lp=ctx.createBiquadFilter(); lp.type="lowpass"; lp.frequency.value=650;
+    const g=ctx.createGain(); g.gain.value=.55; s.connect(lp); lp.connect(g); g.connect(out);
+    const lfo=ctx.createOscillator(); lfo.frequency.value=.09; const lg=ctx.createGain(); lg.gain.value=.35; lfo.connect(lg); lg.connect(g.gain); lfo.start();
+    return ()=>{ safeStop(s); safeStop(lfo); };
+  }
+};
+
+function startPreset(key){
+  const out=ctx.createGain(); out.gain.value=0; out.connect(bus);
+  const cleanup=BUILD[key](out);
+  const t=ctx.currentTime; out.gain.setValueAtTime(0,t); out.gain.linearRampToValueAtTime(1,t+3);
+  current={key,out,cleanup};
+}
+function stopPreset(fade){
+  if(!current) return;
+  const c=current; current=null;
+  const t = ctx.currentTime;
+  c.out.gain.cancelScheduledValues(t); c.out.gain.setValueAtTime(c.out.gain.value,t); c.out.gain.linearRampToValueAtTime(0,t+fade);
+  setTimeout(()=>{ try{ c.cleanup(); }catch{} c.out.disconnect(); }, fade*1000+150);
+}
+function setVolume(){ if(!ctx) return; const v=$("vol").value/100; master.gain.setTargetAtTime(playing? v*v*0.9 : 0, ctx.currentTime, .15); }
+
+/* ============ Player controls ============ */
+function buildPresets(){
+  const box=$("presets");
+  Object.entries(PRESETS).forEach(([k,p])=>{
+    const b=document.createElement("button"); b.type="button"; b.className="preset"; b.dataset.k=k; b.setAttribute("aria-pressed","false");
+    b.textContent=p.name; const s=document.createElement("small"); s.textContent=p.desc; b.append(s);
+    b.addEventListener("click", ()=>selectPreset(k,false));
+    box.append(b);
+  });
+}
+function selectPreset(k, fromMood){
+  presetKey=k;
+  document.querySelectorAll(".preset").forEach(b=>b.setAttribute("aria-pressed", b.dataset.k===k ? "true":"false"));
+  if(playing){ stopPreset(1.5); startPreset(k); }
+  if(!fromMood) $("soundStatus").textContent = playing ? "Now playing: "+PRESETS[k].name : "Selected: "+PRESETS[k].name+". Press Play to listen.";
+}
+function play(){
+  ensureCtx(); playing=true;
+  startPreset(presetKey); setVolume();
+  $("btnPlay").textContent="⏸ Pause";
+  $("soundStatus").textContent="Now playing: "+PRESETS[presetKey].name;
+  armSleep();
+}
+function pause(fade){
+  if(!playing) return; playing=false;
+  stopPreset(fade||1.5);
+  if(ctx) master.gain.setTargetAtTime(0, ctx.currentTime, (fade||1.5)/3);
+  $("btnPlay").textContent="▶ Play";
+  clearSleep();
+}
+$("btnPlay").addEventListener("click", ()=> playing ? (pause(1.5), $("soundStatus").textContent="Paused.") : play());
+$("vol").addEventListener("input", setVolume);
+
+/* sleep timer */
+let sleepTimer=null, sleepEnd=0;
+function clearSleep(){ clearInterval(sleepTimer); sleepTimer=null; }
+function armSleep(){
+  clearSleep();
+  const mins=Number($("sleep").value);
+  if(!playing || !mins) return;
+  sleepEnd=Date.now()+mins*60000;
+  const tick=()=>{
+    const left=Math.max(0, sleepEnd-Date.now());
+    if(left<=0){ pause(8); $("soundStatus").textContent="Sleep timer finished — sound faded out."; return; }
+    const m=Math.floor(left/60000), s=Math.floor(left/1000)%60;
+    $("soundStatus").textContent="Now playing: "+PRESETS[presetKey].name+" · fades out in "+m+":"+String(s).padStart(2,"0");
+  };
+  tick(); sleepTimer=setInterval(tick,1000);
+}
+$("sleep").addEventListener("change", armSleep);
+
+/* listening time (counts only while playing) */
+setInterval(()=>{ if(playing) listenedSec++; },1000);
+
+/* ============ Breathing guide ============ */
+let breathing=false, bTimer=null, cTimer=null, cycleCount=0;
+function runPhase(steps,i){
+  if(!breathing) return;
+  const [label,secs,grow]=steps[i%steps.length];
+  if(i%steps.length===0 && i>0){ cycleCount++; $("cycles").textContent=cycleCount+" cycle"+(cycleCount>1?"s":"")+" done"; }
+  $("bText").textContent=label;
+  const orb=$("orb");
+  if(!reduceMotion){
+    orb.style.transition="transform "+secs+"s ease-in-out";
+    orb.style.transform="scale("+(grow?1:.6)+")";
+  }
+  if(ctx && playing && $("sync").checked){
+    const t=ctx.currentTime, g=bus.gain;
+    g.cancelScheduledValues(t); g.setValueAtTime(g.value,t);
+    g.linearRampToValueAtTime(grow?1:.55, t+secs);
+  }
+  let left=secs; $("bNum").textContent=left;
+  clearInterval(cTimer);
+  cTimer=setInterval(()=>{ left--; if(left>0) $("bNum").textContent=left; },1000);
+  bTimer=setTimeout(()=>runPhase(steps,i+1), secs*1000);
+}
+function startBreath(){
+  breathing=true; cycleCount=0; $("cycles").textContent="";
+  $("btnBreath").textContent="Stop breathing guide";
+  const steps=PATTERNS[$("pattern").value];
+  const orb=$("orb"); if(!reduceMotion){ orb.style.transition="none"; orb.style.transform="scale(.6)"; void orb.offsetWidth; }
+  runPhase(steps,0);
+}
+function stopBreath(){
+  breathing=false; clearTimeout(bTimer); clearInterval(cTimer);
+  $("btnBreath").textContent="Start breathing guide";
+  $("bText").textContent="Ready"; $("bNum").textContent="";
+  if(!reduceMotion){ const o=$("orb"); o.style.transition="transform 1.5s ease-in-out"; o.style.transform="scale(.6)"; }
+  if(ctx){ const t=ctx.currentTime; bus.gain.cancelScheduledValues(t); bus.gain.setValueAtTime(bus.gain.value,t); bus.gain.linearRampToValueAtTime(1,t+2); }
+}
+$("btnBreath").addEventListener("click", ()=> breathing ? stopBreath() : startBreath());
+$("pattern").addEventListener("change", ()=>{ if(breathing){ stopBreath(); startBreath(); } });
+
+/* ============ Mood log ============ */
+function fmtDate(ts){ const d=new Date(ts); return d.toLocaleDateString(undefined,{day:"numeric",month:"short"})+" "+d.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"}); }
+function renderLog(){
+  const last=log.slice(-14);
+  const stats=$("stats"); stats.textContent="";
+  const avg = last.length ? (last.reduce((s,x)=>s+x.mood,0)/last.length).toFixed(1) : "–";
+  const mins = Math.round(log.reduce((s,x)=>s+(x.sec||0),0)/60);
+  [[avg,"Average mood (last 14)"],[log.length,"Entries saved"],[mins,"Minutes listened"]].forEach(([n,l])=>{
+    const d=document.createElement("div"); d.className="stat"; const b=document.createElement("b"); b.textContent=n; const s=document.createElement("span"); s.textContent=l; d.append(b,s); stats.append(d);
+  });
+  const box=$("chartBox"); box.textContent="";
+  if(last.length<2){ const p=document.createElement("p"); p.className="empty"; p.textContent = log.length ? "Save one more entry to see your mood chart." : "No entries yet. Choose a mood above and press “Save today's mood”."; box.append(p); }
+  else{
+    const W=640,H=220,pl=34,pr=14,pt=14,pb=28, n=last.length;
+    const x=i=>pl+(n===1?0:i*(W-pl-pr)/(n-1)), y=v=>pt+(5-v)*(H-pt-pb)/4;
+    let g='';
+    for(let v=1;v<=5;v++) g+='<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="rgba(255,255,255,.1)"/><text x="'+(pl-10)+'" y="'+(y(v)+4)+'" fill="#98a6c7" font-size="11" text-anchor="end">'+v+'</text>';
+    const pts=last.map((e,i)=>x(i)+","+y(e.mood)).join(" ");
+    g+='<polyline points="'+pts+'" fill="none" stroke="#5ee1ff" stroke-width="2.5" stroke-linejoin="round"/>';
+    last.forEach((e,i)=>{ g+='<circle cx="'+x(i)+'" cy="'+y(e.mood)+'" r="4.5" fill="#b79bff"/>'; });
+    const dl=ts=>new Date(ts).toLocaleDateString(undefined,{day:"numeric",month:"short"});
+    g+='<text x="'+pl+'" y="'+(H-8)+'" fill="#98a6c7" font-size="11">'+dl(last[0].ts)+'</text><text x="'+(W-pr)+'" y="'+(H-8)+'" fill="#98a6c7" font-size="11" text-anchor="end">'+dl(last[n-1].ts)+'</text>';
+    box.innerHTML='<svg class="chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Line chart of your last '+n+' mood entries, scale 1 very low to 5 great">'+g+'</svg>';
+  }
+  const ul=$("logList"); ul.textContent="";
+  log.slice().reverse().slice(0,10).forEach(e=>{
+    const li=document.createElement("li");
+    const em=document.createElement("span"); em.className="e"; em.textContent=MOODS[e.mood-1].e; em.setAttribute("aria-hidden","true");
+    const m=document.createElement("div"); m.className="m";
+    const t=document.createElement("b"); t.textContent=MOODS[e.mood-1].t;
+    const sm=document.createElement("small"); sm.textContent=fmtDate(e.ts)+(e.sec?" · listened "+Math.max(1,Math.round(e.sec/60))+" min":"")+(e.preset?" · "+e.preset:"");
+    m.append(t,sm);
+    if(e.note){ const p=document.createElement("p"); p.textContent=e.note; m.append(p); }
+    const del=document.createElement("button"); del.type="button"; del.className="secondary"; del.textContent="Delete"; del.setAttribute("aria-label","Delete entry from "+fmtDate(e.ts));
+    del.addEventListener("click", ()=>{ if(!confirm("Delete this entry?")) return; log=log.filter(x=>x.ts!==e.ts); saveLog(log); renderLog(); });
+    li.append(em,m,del); ul.append(li);
+  });
+}
+$("btnSave").addEventListener("click", ()=>{
+  if(!mood){ $("saveStatus").textContent="Please choose how you feel in step 1 first."; return; }
+  log.push({ ts:Date.now(), mood:mood.v, preset:PRESETS[presetKey].name, sec:listenedSec, note:$("note").value.trim() });
+  saveLog(log); listenedSec=0; $("note").value="";
+  $("saveStatus").textContent="Saved. Thank you for checking in with yourself.";
+  renderLog();
+});
+$("btnClear").addEventListener("click", ()=>{ if(!log.length || !confirm("Clear the whole mood log?")) return; log=[]; saveLog(log); renderLog(); });
+$("btnExport").addEventListener("click", ()=>{
+  const rows=[["Date","Mood (1-5)","Mood","Sound","Seconds listened","Note"]];
+  log.forEach(e=>rows.push([new Date(e.ts).toISOString(), e.mood, MOODS[e.mood-1].t, e.preset||"", e.sec||0, e.note||""]));
+  const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(",")).join("\r\n");
+  const url=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));
+  const a=document.createElement("a"); a.href=url; a.download="mood-log.csv"; a.click(); URL.revokeObjectURL(url);
+});
+
+/* ============ Init ============ */
+buildPresets(); selectPreset("pad", true); renderLog();
+</script>
+</body>
+</html>
