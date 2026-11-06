@@ -1545,7 +1545,7 @@ img, iframe { max-width: 100%; }
 /* ===== Added: project blocks & expandable "how it was built / how to use" ===== */
 .project-block { display: flex; flex-direction: column; gap: 28px; }
 .project-block .feature-row .feature-visual.feature-visual-music {
-  background-image: url('images/music-preview.jpg');
+  background-image: url('music-preview.jpg');
   background-position: top center;
 }
 @media (min-width: 1025px) {
