@@ -1631,3 +1631,43 @@ html { background: #02050e; }
   .neural-background { animation: none !important; }
   .geometric-shapes, .neural-lines { display: none; }
 }
+
+
+/* ===== Cybersecurity Learning ===== */
+.cyber { padding: 120px 0 60px; position: relative; }
+.cyber-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+.cyber-intro { text-align: center; color: #cfe0ff; max-width: 640px; margin: -20px auto 40px; font-size: 1.05rem; line-height: 1.7; }
+.cyber-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: 24px; align-items: start; }
+.cyber-card { padding: 28px; border-radius: 22px; min-width: 0; }
+.cyber-card h3 { font-size: 1.35rem; margin-bottom: 4px; line-height: 1.3; }
+.cyber-card a { color: #4cc9ff; text-decoration: none; overflow-wrap: anywhere; }
+.cyber-card a:hover { text-decoration: underline; }
+.cyber-card a:focus-visible { outline: 2px solid #4cc9ff; outline-offset: 3px; border-radius: 4px; }
+.cyber-module { margin: 18px 0 8px; color: #9cc3ff; font-weight: 600; font-size: 0.95rem; letter-spacing: 0.02em; }
+.cyber-module a { color: #9cc3ff; }
+.cyber-card ul { list-style: none; margin: 0; padding: 0; }
+.cyber-card li { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+.cyber-card li:first-child { border-top: 0; }
+.cyber-card li b { display: block; color: #fff; font-weight: 600; font-size: 0.98rem; }
+.cyber-card li span:not(.tick) { display: block; color: #aab9d8; font-size: 0.88rem; line-height: 1.5; }
+.cyber-card .tick { flex: 0 0 auto; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 0.75rem; color: #02050e; background: #4cc9ff; margin-top: 2px; }
+.cyber-cta { text-align: center; margin-top: 36px; }
+.cyber-cta .cert-btn { padding: 14px 28px; font-size: 1rem; }
+
+@media (max-width: 768px) {
+  .cyber { padding: 80px 0 30px; }
+  .cyber-container { padding: 0 14px; }
+  .cyber-intro { margin: -10px auto 28px; font-size: 1rem; }
+  .cyber-card { padding: 20px 16px; border-radius: 18px; }
+  .cyber-card h3 { font-size: 1.2rem; }
+  .cyber-cta .cert-btn { display: block; }
+}
+
+/* ===== Nav fit for 6 menu items on mid-width screens ===== */
+.nav-links a { white-space: nowrap; }
+.logo { white-space: nowrap; }
+@media (min-width: 1001px) and (max-width: 1240px) {
+  .nav-links { gap: 4px; }
+  .nav-links a { padding: 10px 12px; font-size: 0.88rem; }
+  .logo { font-size: 22px; gap: 8px; }
+}
