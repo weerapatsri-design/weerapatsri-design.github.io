@@ -2,24 +2,25 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
+<meta name="theme-color" content="#050b1a">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Mini-Inventory</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  :root{ --bg:#0b1220; --card:#121a2b; --text:#e6eefc; --muted:#98a6c7; --accent:#5ee1ff; --danger:#ff6b6b; --ok:#9aff8a;}
+  :root{ --bg:#050b1a; --card:#0c1a33; --text:#e6eefc; --muted:#98a6c7; --accent:#4cc9ff; --danger:#ff6b6b; --ok:#9aff8a;}
   *{ box-sizing:border-box }
-  body{ margin:0; font-family:Inter,system-ui,Segoe UI,Arial; background:radial-gradient(1000px 600px at 10% 0%, #0f1b32, transparent),radial-gradient(800px 500px at 90% 100%, #16233e, transparent), var(--bg); color:var(--text); }
+  body{ margin:0; font-family:Inter,system-ui,Segoe UI,Arial; background:radial-gradient(1000px 600px at 10% 0%, #0d2250, transparent),radial-gradient(800px 500px at 90% 100%, #0b2a5c, transparent), var(--bg); color:var(--text); }
   .wrap{ max-width:980px; margin:40px auto; padding:0 16px; }
   h1{ margin:0 0 16px; font-size:28px; letter-spacing:.2px }
   .bar{ display:flex; gap:12px; flex-wrap:wrap; align-items:end; margin-bottom:16px }
   .card{ background:var(--card); border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:16px; box-shadow:0 10px 30px rgba(0,0,0,.35) }
   label{ font-size:12px; color:var(--muted) }
-  input,select,button{ height:42px; border-radius:10px; border:1px solid rgba(255,255,255,.12); background:#0c1527; color:var(--text); padding:0 12px; outline:none }
+  input,select,button{ height:42px; border-radius:10px; border:1px solid rgba(255,255,255,.12); background:#081226; color:var(--text); padding:0 12px; outline:none }
   input::placeholder{ color:#6f7da0 }
-  button{ background:linear-gradient(135deg,#5ee1ff,#00b7ff); border:none; font-weight:600; cursor:pointer }
-  button.secondary{ background:#0c1527 }
-  button.danger{ background:linear-gradient(135deg,#ff8f8f,#ff6b6b) }
+  button{ background:linear-gradient(135deg,#3b82f6,#1d4ed8); color:#fff; border:none; font-weight:600; cursor:pointer }
+  button.secondary{ background:#081226 }
+  button.danger{ background:linear-gradient(135deg,#ff8f8f,#ff6b6b); color:#2a0a0a }
   .grow{ flex:1 }
   table{ width:100%; border-collapse:collapse; }
   th,td{ padding:12px; border-top:1px solid rgba(255,255,255,.08); text-align:left; }
@@ -30,7 +31,7 @@
   .pill-low{ background:rgba(255,107,107,.12); color:var(--danger) }
   .footer{ margin-top:14px; display:flex; gap:10px; justify-content:flex-end }
   .table-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch }
-  .goto-btn{ height:42px; padding:0 18px; border-radius:10px; border:none; color:#06121f; font-weight:600; cursor:pointer; background:linear-gradient(135deg,#5ee1ff,#00b7ff) }
+  .goto-btn{ height:42px; padding:0 18px; border-radius:10px; border:none; color:#fff; font-weight:600; cursor:pointer; background:linear-gradient(135deg,#3b82f6,#1d4ed8) }
   @media (max-width:680px){
     .hide-sm{ display:none }
     .wrap{ margin:20px auto }

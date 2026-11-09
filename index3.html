@@ -2,22 +2,23 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
+<meta name="theme-color" content="#050b1a">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Calm Sound — Music Therapy for Low Mood</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0b1220; --card:#121a2b; --card2:#0c1527; --text:#e6eefc; --muted:#98a6c7;
-    --accent:#5ee1ff; --accent2:#b79bff; --danger:#ff6b6b; --ok:#9aff8a;
+    --bg:#050b1a; --card:#0c1a33; --card2:#081226; --text:#e6eefc; --muted:#98a6c7;
+    --accent:#4cc9ff; --accent2:#8fb8ff; --danger:#ff6b6b; --ok:#9aff8a;
     --line:rgba(255,255,255,.1);
   }
   *{ box-sizing:border-box }
   html{ -webkit-text-size-adjust:100% }
   body{
     margin:0; font-family:Inter,system-ui,"Segoe UI",Arial,sans-serif; color:var(--text); line-height:1.55;
-    background:radial-gradient(1000px 600px at 10% 0%, #14284a, transparent),
-               radial-gradient(800px 500px at 90% 100%, #261a4a, transparent), var(--bg);
+    background:radial-gradient(1000px 600px at 10% 0%, #0d2250, transparent),
+               radial-gradient(800px 500px at 90% 100%, #0b2a5c, transparent), var(--bg);
     min-height:100vh;
   }
   .wrap{ max-width:980px; margin:0 auto; padding:28px 16px 56px }
@@ -32,9 +33,9 @@
   .notice strong{ color:#ffb4b4 }
 
   button, select, input, textarea{ font:inherit; color:var(--text) }
-  button{ min-height:44px; padding:0 18px; border:none; border-radius:10px; font-weight:600; cursor:pointer; color:#06121f; background:linear-gradient(135deg,#5ee1ff,#00b7ff) }
+  button{ min-height:44px; padding:0 18px; border:none; border-radius:10px; font-weight:600; cursor:pointer; color:#fff; background:linear-gradient(135deg,#3b82f6,#1d4ed8) }
   button.secondary{ background:var(--card2); color:var(--text); border:1px solid var(--line) }
-  button.danger{ background:linear-gradient(135deg,#ff8f8f,#ff6b6b) }
+  button.danger{ background:linear-gradient(135deg,#ff8f8f,#ff6b6b); color:#2a0a0a }
   button:disabled{ opacity:.5; cursor:not-allowed }
   button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible, .mood input:focus-visible + span{ outline:2px solid var(--accent); outline-offset:2px }
   select, textarea, input[type=text]{ width:100%; min-height:44px; background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:8px 12px }
@@ -48,7 +49,7 @@
   .mood input{ position:absolute; opacity:0; inset:0; cursor:pointer; margin:0; width:100%; height:100% }
   .mood span{ display:flex; flex-direction:column; align-items:center; gap:4px; padding:12px 4px; border-radius:12px; background:var(--card2); border:1px solid var(--line); font-size:.74rem; color:var(--muted); text-align:center; transition:border-color .2s, background .2s }
   .mood span b{ font-size:1.6rem; line-height:1 }
-  .mood input:checked + span{ border-color:var(--accent); background:rgba(94,225,255,.1); color:var(--text) }
+  .mood input:checked + span{ border-color:var(--accent); background:rgba(76,201,255,.12); color:var(--text) }
   #moodMsg{ margin:14px 0 0; min-height:3em; color:#d6e2ff }
   #suggest{ margin:6px 0 0; color:var(--accent2); font-size:.92rem }
 
@@ -59,15 +60,15 @@
   .presets{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin-bottom:14px }
   .preset{ text-align:left; background:var(--card2); color:var(--text); border:1px solid var(--line); padding:10px 12px; min-height:60px }
   .preset small{ display:block; font-weight:400; color:var(--muted); font-size:.75rem }
-  .preset[aria-pressed=true]{ border-color:var(--accent); background:rgba(94,225,255,.1) }
+  .preset[aria-pressed=true]{ border-color:var(--accent); background:rgba(76,201,255,.12) }
   input[type=range]{ width:100%; accent-color:var(--accent); min-height:32px }
   .status{ color:var(--muted); font-size:.88rem; margin:10px 0 0; min-height:1.4em }
 
   /* breathing */
   .breath-stage{ display:grid; place-items:center; height:210px; margin:6px 0 14px }
   .orb{ width:170px; height:170px; border-radius:50%; display:grid; place-items:center; text-align:center;
-        background:radial-gradient(circle at 35% 30%, #b79bff, #3a6ee8 60%, #123 100%);
-        box-shadow:0 0 50px rgba(94,225,255,.35); transform:scale(.6); will-change:transform }
+        background:radial-gradient(circle at 35% 30%, #8fb8ff, #2563eb 60%, #0a1f44 100%);
+        box-shadow:0 0 50px rgba(76,201,255,.35); transform:scale(.6); will-change:transform }
   .orb .t{ font-weight:700; font-size:1.05rem; color:#fff }
   .orb .n{ font-size:1.6rem; color:#fff }
   .reduce .orb{ transform:none !important; transition:none !important }
@@ -473,8 +474,8 @@ function renderLog(){
     let g='';
     for(let v=1;v<=5;v++) g+='<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="rgba(255,255,255,.1)"/><text x="'+(pl-10)+'" y="'+(y(v)+4)+'" fill="#98a6c7" font-size="11" text-anchor="end">'+v+'</text>';
     const pts=last.map((e,i)=>x(i)+","+y(e.mood)).join(" ");
-    g+='<polyline points="'+pts+'" fill="none" stroke="#5ee1ff" stroke-width="2.5" stroke-linejoin="round"/>';
-    last.forEach((e,i)=>{ g+='<circle cx="'+x(i)+'" cy="'+y(e.mood)+'" r="4.5" fill="#b79bff"/>'; });
+    g+='<polyline points="'+pts+'" fill="none" stroke="#4cc9ff" stroke-width="2.5" stroke-linejoin="round"/>';
+    last.forEach((e,i)=>{ g+='<circle cx="'+x(i)+'" cy="'+y(e.mood)+'" r="4.5" fill="#8fb8ff"/>'; });
     const dl=ts=>new Date(ts).toLocaleDateString(undefined,{day:"numeric",month:"short"});
     g+='<text x="'+pl+'" y="'+(H-8)+'" fill="#98a6c7" font-size="11">'+dl(last[0].ts)+'</text><text x="'+(W-pr)+'" y="'+(H-8)+'" fill="#98a6c7" font-size="11" text-anchor="end">'+dl(last[n-1].ts)+'</text>';
     box.innerHTML='<svg class="chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Line chart of your last '+n+' mood entries, scale 1 very low to 5 great">'+g+'</svg>';

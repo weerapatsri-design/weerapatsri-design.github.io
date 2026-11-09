@@ -92,20 +92,13 @@ https://templatemo.com/tm-597-neural-glass
         window.addEventListener('scroll', updateActiveMenuItem);
         window.addEventListener('load', updateActiveMenuItem);
 
-        // Parallax effect for geometric shapes
-        window.addEventListener('scroll', () => {
-            const shapes = document.querySelectorAll('.shape');
-            const scrolled = window.pageYOffset;
-            
-            shapes.forEach((shape, index) => {
-                const speed = (index + 1) * 0.3;
-                shape.style.transform = `translateY(${scrolled * speed}px) rotate(${scrolled * 0.1}deg)`;
-            });
-        });
+        // Parallax on geometric shapes removed (calmer scrolling, better performance)
 
         // Neural lines pulse effect
         const neuralLines = document.querySelectorAll('.neural-line');
+        const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         setInterval(() => {
+            if (reduceMotion || document.hidden) return;
             neuralLines.forEach((line, index) => {
                 setTimeout(() => {
                     line.style.opacity = '1';
@@ -116,15 +109,15 @@ https://templatemo.com/tm-597-neural-glass
                     }, 200);
                 }, index * 300);
             });
-        }, 2000);
+        }, 5000);
 
         // Enhanced particle generation
         function createQuantumParticle() {
             const particle = document.createElement('div');
             particle.style.position = 'fixed';
-            particle.style.width = Math.random() * 4 + 1 + 'px';
+            particle.style.width = Math.random() * 3 + 1 + 'px';
             particle.style.height = particle.style.width;
-            particle.style.background = ['#00ffff', '#00eeffff', '#8000ff'][Math.floor(Math.random() * 3)];
+            particle.style.background = ['#4cc9ff', '#4cc9ff', '#2563eb'][Math.floor(Math.random() * 3)];
             particle.style.borderRadius = '50%';
             particle.style.left = Math.random() * 100 + '%';
             particle.style.top = '100vh';
@@ -147,7 +140,9 @@ https://templatemo.com/tm-597-neural-glass
         }
 
         // Generate quantum particles
-        setInterval(createQuantumParticle, 1500);
+        if (!reduceMotion) {
+            setInterval(() => { if (!document.hidden) createQuantumParticle(); }, 4000);
+        }
 
         // Intersection Observer for animations
         const observerOptions = {
@@ -177,15 +172,15 @@ https://templatemo.com/tm-597-neural-glass
         if (submitBtn) submitBtn.addEventListener('click', function(e) {
             e.preventDefault();
             this.innerHTML = 'TRANSMITTING...';
-            this.style.background = 'linear-gradient(45deg, #8000ff, #00ffff)';
+            this.style.background = 'linear-gradient(45deg, #2563eb, #4cc9ff)';
             
             setTimeout(() => {
                 this.innerHTML = 'TRANSMISSION COMPLETE';
-                this.style.background = 'linear-gradient(45deg, #00ff00, #00ffff)';
+                this.style.background = 'linear-gradient(45deg, #00ff00, #4cc9ff)';
                 
                 setTimeout(() => {
                     this.innerHTML = 'TRANSMIT TO MATRIX';
-                    this.style.background = 'linear-gradient(45deg, #00ffff, #ff0080)';
+                    this.style.background = 'linear-gradient(45deg, #4cc9ff, #ff0080)';
                 }, 2000);
             }, 1500);
         });
