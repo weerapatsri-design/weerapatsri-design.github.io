@@ -21,7 +21,7 @@
                radial-gradient(800px 500px at 90% 100%, #0b2a5c, transparent), var(--bg);
     min-height:100vh;
   }
-  .wrap{ max-width:980px; margin:0 auto; padding:28px 16px 56px }
+  .wrap{ max-width:61.25rem; margin:0 auto; padding:28px 16px 56px }
   h1{ margin:0 0 4px; font-size:clamp(1.5rem,5vw,2rem) }
   h2{ margin:0 0 14px; font-size:1.15rem }
   .sub{ color:var(--muted); margin:0 0 18px }
@@ -47,7 +47,7 @@
   .moods legend{ padding:0; margin-bottom:10px; font-weight:600 }
   .mood{ position:relative }
   .mood input{ position:absolute; opacity:0; inset:0; cursor:pointer; margin:0; width:100%; height:100% }
-  .mood span{ display:flex; flex-direction:column; align-items:center; gap:4px; padding:12px 4px; border-radius:12px; background:var(--card2); border:1px solid var(--line); font-size:.74rem; color:var(--muted); text-align:center; transition:border-color .2s, background .2s }
+  .mood span{ min-height:44px; display:flex; flex-direction:column; align-items:center; gap:4px; padding:12px 4px; border-radius:12px; background:var(--card2); border:1px solid var(--line); font-size:.78rem; color:var(--muted); text-align:center; transition:border-color .2s, background .2s }
   .mood span b{ font-size:1.6rem; line-height:1 }
   .mood input:checked + span{ border-color:var(--accent); background:rgba(76,201,255,.12); color:var(--text) }
   #moodMsg{ margin:14px 0 0; min-height:3em; color:#d6e2ff }
@@ -61,7 +61,7 @@
   .preset{ text-align:left; background:var(--card2); color:var(--text); border:1px solid var(--line); padding:10px 12px; min-height:60px }
   .preset small{ display:block; font-weight:400; color:var(--muted); font-size:.75rem }
   .preset[aria-pressed=true]{ border-color:var(--accent); background:rgba(76,201,255,.12) }
-  input[type=range]{ width:100%; accent-color:var(--accent); min-height:32px }
+  input[type=range]{ width:100%; accent-color:var(--accent); min-height:44px }
   .status{ color:var(--muted); font-size:.88rem; margin:10px 0 0; min-height:1.4em }
 
   /* breathing */
@@ -73,7 +73,8 @@
   .orb .n{ font-size:1.6rem; color:#fff }
   .reduce .orb{ transform:none !important; transition:none !important }
   .check{ display:flex; align-items:center; gap:8px; font-size:.9rem; color:var(--muted); margin:10px 0 }
-  .check input{ width:20px; height:20px; accent-color:var(--accent) }
+  .check{ min-height:44px }
+  .check input{ width:24px; height:24px; accent-color:var(--accent); flex:0 0 auto }
 
   /* log */
   .stats{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-bottom:14px }
@@ -97,13 +98,16 @@
     .grid{ grid-template-columns:1fr }
     .card{ padding:16px }
     .moods{ gap:6px }
-    .mood span{ padding:10px 2px; font-size:.68rem }
+    .mood span{ padding:10px 2px; font-size:.75rem }
     .mood span b{ font-size:1.35rem }
     .presets{ grid-template-columns:1fr 1fr }
     .notice{ font-size:.86rem }
     ul.log li{ flex-wrap:wrap }
   }
   @media (max-width:360px){ .presets{ grid-template-columns:1fr } }
+  @media (min-width:1600px){ html{ font-size:clamp(16px,calc(16px + (100vw - 1600px)*.0075),22px) } }
+  .breath-stage{ height:clamp(190px,45vw,240px) }
+  .orb{ width:clamp(140px,38vw,190px); height:clamp(140px,38vw,190px) }
   @media (prefers-reduced-motion:reduce){ *{ transition:none !important } }
 </style>
 </head>
